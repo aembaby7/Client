@@ -1,0 +1,45 @@
+/* @font-face {
+  font-family: 'CircularStd';
+  font-weight: 400;
+  font-style: normal;
+  src: local('CircularStd'), url('CircularStd-Book.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'CircularStd';
+  font-weight: 500;
+  font-style: normal;
+  src: local('CircularStd'), url('CircularStd-Medium.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'CircularStd';
+  font-weight: 700;
+  font-style: normal;
+  src: local('CircularStd'), url('CircularStd-Bold.otf') format('opentype');
+} */
+
+ 
+
+  /* ====================Custom font implementation goes here============================== */
+@font-face {
+  font-family: 'NotoKufiArabic';
+  font-weight: 400;
+  font-style: normal;
+  src: local('NotoKufiArabic'), url('NotoKufiArabic-Regular.ttf') format('truetype');
+}
+
+
+@font-face {
+  font-family: 'NotoKufiArabic-Bold';
+  src: local('NotoKufiArabic'), url('/public/fonts/NotoKufiArabic-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'NotoKufiArabic-Bold';
+  src: local('NotoKufiArabic'), url('/public/fonts/NotoKufiArabic-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}

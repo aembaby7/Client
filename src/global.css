@@ -1,0 +1,178 @@
+/* scrollbar */
+@import 'simplebar-react/dist/simplebar.min.css';
+
+/* ============Custom Font by syed Arif Andrabi - Goolde Noto Kufi FOnt========== */
+
+.arrow {
+  transform: rotate(90deg) !important; /*change the direction of parent menu arrow*/
+}
+
+.rtl-3o0h5k {
+  transform: rotate(180deg) !important; /*change the direction of navbar rrow*/
+}
+/* ======================================= */
+/* splash screen animation */
+.appSplitScreen {
+  animation: splitScreen 2s ease-out forwards;
+  overflow: hidden; /* Prevent scrollbars during animation */
+}
+
+@keyframes splitScreen {
+  0% {
+    transform: scaleX(1);
+  }
+  100% {
+    transform: scaleX(0);
+  }
+}
+/* ========================================= */
+/* footer globalStyles.css */
+.tealFooterLink {
+  color: #fff !important;
+  text-decoration: none !important;
+}
+
+.tealFooterIcon {
+  color: white !important;
+}
+
+.iconPadding {
+  margin-left: 8px !important;
+}
+
+/* next link styles/globals.css */
+.customLink {
+  text-decoration: none !important;
+  color: inherit !important;
+}
+/* Media query for desktop devices for 100vh for landing page */
+@media (min-width: 1024px) {
+  .boxHeight {
+    height: 100vh; /* Full viewport height on desktop */
+  }
+}
+
+/* =======================================Menu icon title fonts ======================= */
+.rtl-17zx3ae-MuiButtonBase-root-MuiButton-root {
+  font-weight: 600 !important;
+  /* font-size: 0.8rem !important; */
+  padding-right: 5px !important;
+  padding-left: 5px !important;
+  color: teal;
+  /* color: rgb(94, 93, 93); */
+  margin: 2px !important;
+}
+
+/* ========================Mobile media queries for fine tuning ============================ */
+/* ===========================Service Description css ====================================== */
+@media (max-width: 600px) {
+  .rtl-5lw0b0 {
+    background-color: #fff;
+    height: 100%;
+    border-radius: 20px;
+    box-shadow:
+      rgba(0, 0, 0, 0.12) 0px 1px 3px,
+      rgba(0, 0, 0, 0.24) 0px 1px 2px;
+    padding: 20px 15px !important;
+  }
+  /* ======================================Login page mobile css=============================== */
+  .rtl-lni6rq-MuiStack-root {
+    padding-right: 8px;
+    padding-left: 8px;
+    padding-top: 90px;
+    padding-bottom: 10px;
+  }
+  .rtl-1obf0u0 {
+    width: 100%;
+    background-color: #fafafa;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow:
+      rgba(0, 0, 0, 0.1) 0px 1px 3px 0px,
+      rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
+  }
+
+  /* ==========================Mobile top bar for select farm css============================= */
+  .rtl-1obnmg7-MuiButtonBase-root-MuiButton-root {
+    /* min-width: 64px; */
+    min-width: 5px !important;
+  }
+
+  /* empty space in mobile login page after logo */
+  .rtl-trtt15-MuiStack-root {
+    padding-top: 80px !important;
+}
+}
+
+/* ===============================Mobile Login Box css===================================== */
+.rtl-1obf0u0 {
+  width: 100%;
+  background-color: rgb(250 250 250 / 70%);
+  padding: 20px;
+  border-radius: 8px;
+  /* box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset !important; */
+  box-shadow:
+    rgba(50, 50, 93, 0.25) 0px 50px 100px -20px,
+    rgba(0, 0, 0, 0.3) 0px 10px 20px -30px,
+    rgba(10, 37, 64, 0.35) 0px -2px 4px 0px inset !important;
+}
+
+/* remove the text decoration for liinks  sepcially for mobile login button*/
+a {
+  text-decoration: none !important;
+}
+
+
+
+/* =======================Css implementation for service cards / temporary solution============================== */
+.rtl-17e2y2a-MuiPaper-root-MuiCard-root {
+  background-color: #FFFFFF;
+  color: #212B36;
+  transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  box-shadow: none;
+  background-image: none;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 0 2px 0 rgba(145, 158, 171, 0.2), 0 12px 24px -4px rgba(145, 158, 171, 0.12);
+  border-radius: 16px;
+  z-index: 0;
+  color: #58585a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  transition: 0.3s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  min-height: 200px !important;
+}
+
+.rtl-17pmaar-MuiCardContent-root {
+  padding: 15px !important;
+}
+
+/* ================== Temp Color for contact us =============== */
+
+.rtl-1qe78sl-MuiButtonBase-root-MuiFab-root {
+  background-color: #fc9a33 !important;
+ 
+}
+
+.rtl-1cixmhj-MuiPaper-root-MuiDialog-paper {
+  max-width: 800px !important;
+}
+
+
+/* ==================================== */
+/* @media (min-width: 900px) {
+  .rtl-8cy5mr-MuiStack-root {
+      padding-right: 64px;
+      padding-left: 64px;
+      padding-top: 80px;
+      padding-bottom: 0px;
+      display: flex !important;
+      align-items: center !important;
+  }
+} */
