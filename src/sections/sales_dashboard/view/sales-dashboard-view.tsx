@@ -106,7 +106,7 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
 const TIME_LABELS = {
   week: ['Mon', 'Tue', 'Web', 'Thu', 'Fri', 'Sat', 'Sun'],
   month: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-  year: ['2017', '2018', '2019', '2020', '2021', '2022', '2023', 'نهاية الربع الثالث 2024'],
+  year: ['2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024'],
 };
 
 export default function SalesDashboardView() {
@@ -1006,9 +1006,7 @@ export default function SalesDashboardView() {
                                     <TableRow
                                       sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                     >
-                                      <TableCell style={{ textAlign: 'center' }}>
-                                        نهاية الربع الثالث 2024{' '}
-                                      </TableCell>
+                                      <TableCell style={{ textAlign: 'center' }}>2024</TableCell>
                                       <TableCell style={{ textAlign: 'center' }}>
                                         <b>
                                           {fShortenNumber2(

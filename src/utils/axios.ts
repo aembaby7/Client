@@ -43,6 +43,14 @@ export const endpoints = {
     getSalesDashboard: '/api/dashboard/getSalesDashboard',
     getFarmLocations: '/api/dashboard/getFarmLocations',
   },
+  mcSales: {
+    query: '/api/MCSales/query',
+    summary: '/api/MCSales/summary',
+    monthly: '/api/MCSales/monthly',
+    byCustomer: '/api/MCSales/by-customer',
+    byCategory: '/api/MCSales/by-category',
+    export: '/api/MCSales/export',
+  },
   dashPayments: {
     getPaymentsDashboard: '/api/dashPayments/getPaymentsDashboard',
   },

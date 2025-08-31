@@ -14,6 +14,7 @@ import {
 import { styled } from '@mui/material/styles';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
+import AnalysisPeriod, { getDataPeriod } from './analysis-period';
 
 // --- STYLES ---
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -138,6 +139,13 @@ export default function MillingCompaniesSalesComparisonTable({
   const { companies } = data;
   const allBranches = companies.flatMap((c) => c.branches);
 
+  // Use the shared helper function to get data period
+  const {
+    firstMonth: firstMonthIndex,
+    lastMonth: lastMonthIndex,
+    monthsCount,
+  } = getDataPeriod(data);
+
   const grandTotalCurrentYear = allBranches.reduce(
     (sum, b) => sum + b.monthlySalesCYear.reduce((a, c) => a + c, 0),
     0
@@ -155,7 +163,7 @@ export default function MillingCompaniesSalesComparisonTable({
   };
 
   return (
-    <Box sx={{ my: 4 }}>
+    <Box sx={{ width: '100%', mb: 4 }}>
       <Box
         sx={{
           mb: 3,
@@ -176,9 +184,17 @@ export default function MillingCompaniesSalesComparisonTable({
             color: 'text.primary',
           }}
         >
-          {`مبيعات الهيئة من القمح ${year} بالمقارنة مع مبيعات العام السابق`}
+          بيان تفصيلي
         </Typography>
       </Box>
+
+      {/* Use the shared AnalysisPeriod component */}
+      <AnalysisPeriod
+        firstMonthIndex={firstMonthIndex}
+        lastMonthIndex={lastMonthIndex}
+        monthsCount={monthsCount}
+        year={year}
+      />
 
       <TableContainer
         component={Paper}
@@ -444,7 +460,7 @@ export default function MillingCompaniesSalesComparisonTable({
             </TableRow>
             <TableRow hover>
               <TotalTableCell sx={{ ...stickyStyles, backgroundColor: '#f0f2e6' }}>
-                الإجمالي للعام السابق
+                وفق الفترة للعام السابق
               </TotalTableCell>
               {companies.map((company, companyIndex) => {
                 const companyTotal2024 = company.branches.reduce(

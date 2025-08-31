@@ -12,7 +12,7 @@ import { useAuthContext } from 'src/auth/hooks';
 // ----------------------------------------------------------------------
 
 const icon = (name: string) => (
-  <SvgColor src={`/assets/icons/navbar/${name}.svg`} sx={{ width: 1, height: 1 }} />
+  <SvgColor src={`/assets/icons/navbar/${name}.svg`} sx={{ width: 1, height: 1, color: 'teal' }} />
   // OR
   // <Iconify icon="fluent:mail-24-filled" />
   // https://icon-sets.iconify.design/solar/
@@ -70,7 +70,11 @@ export function useNavData() {
       if (user!.isDashSAdmin || user!.isDashBarley) {
         isBarley = true;
       }
-      if (user!.userName == '2247225465' || user!.userName == '1018625283') {
+      if (
+        user!.userName == '2247225465' ||
+        user!.userName == '1005217151' ||
+        user!.userName == '1099510164'
+      ) {
         isTest = true;
       }
       //1033914688
@@ -93,17 +97,17 @@ export function useNavData() {
           {
             title: t('عمليات الإستلام'),
             path: paths.home.mahsoli.gintake,
-            icon: ICONS.analytics,
+            icon: ICONS.booking, // Booking/receiving operations
           },
           {
             title: t('صرف المستحقات'),
             path: paths.home.mahsoli.payments,
-            icon: ICONS.dashboard,
+            icon: ICONS.banking, // Banking/payments
           },
           {
             title: t('احداثيات الرخص'),
             path: paths.home.mahsoli.locations,
-            icon: ICONS.dashboard,
+            icon: ICONS.tour, // Location/coordinates
           },
         ],
       },
@@ -113,7 +117,7 @@ export function useNavData() {
           {
             title: t('صرف المستحقات'),
             path: paths.home.mahsoli.payments,
-            icon: ICONS.dashboard,
+            icon: ICONS.banking, // Banking/payments
           },
         ],
       },
@@ -123,22 +127,27 @@ export function useNavData() {
           {
             title: t('مبيعات الدقيق'),
             path: paths.home.flourSales.yearly,
-            icon: ICONS.analytics,
+            icon: ICONS.ecommerce, // Sales/commerce
           },
           {
             title: t('مقارنة سنوية'),
             path: paths.home.flourSales.allyears,
-            icon: ICONS.analytics,
+            icon: ICONS.analytics, // Analytics/comparison
+          },
+          {
+            title: t('مبيعات العملاء'),
+            path: paths.home.mcSales.root,
+            icon: ICONS.analytics, // Analytics/comparison
           },
           {
             title: t('الأعمال المنجزة'),
             path: paths.home.m.achievements,
-            icon: ICONS.analytics,
+            icon: ICONS.job, // Work/achievements
           },
           {
             title: t('مواقع عملاء الدقيق'),
             path: paths.home.m.locations,
-            icon: ICONS.analytics,
+            icon: ICONS.user, // Customer locations
           },
         ],
       },
@@ -148,12 +157,12 @@ export function useNavData() {
           {
             title: t('الشامل شهرياً'),
             path: paths.home.millsReports.monthly,
-            icon: ICONS.analytics,
+            icon: ICONS.calendar, // Monthly reports
           },
           {
             title: t('مخزونات الدقيق اليومية'),
             path: paths.home.millsReports.daily,
-            icon: ICONS.analytics,
+            icon: ICONS.dashboard, // Daily inventory dashboard
           },
         ],
       },
@@ -163,12 +172,12 @@ export function useNavData() {
           {
             title: t('المبيعات الشهرية'),
             path: paths.home.wheatSales.monthly,
-            icon: ICONS.analytics,
+            icon: ICONS.invoice, // Monthly sales/invoices
           },
           {
             title: t('طلبات شراء القمح'),
             path: paths.home.others.comingsoon,
-            icon: ICONS.analytics,
+            icon: ICONS.order, // Purchase orders
           },
         ],
       },
@@ -179,7 +188,18 @@ export function useNavData() {
           {
             title: t('مخزونات الشعير'),
             path: paths.home.barleyStocks.currentYear,
-            icon: ICONS.analytics,
+            icon: ICONS.folder, // Stock/storage
+          },
+        ],
+      },
+
+      isTest && {
+        subheader: t('تحت الإختبار'),
+        items: [
+          {
+            title: t('المبيعات الشهرية'),
+            path: paths.home.wheatSales.devMonthly,
+            icon: ICONS.label, // Test/development label
           },
         ],
       },

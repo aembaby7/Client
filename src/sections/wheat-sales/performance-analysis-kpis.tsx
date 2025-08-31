@@ -11,10 +11,39 @@ import {
   Divider,
   useTheme,
   alpha,
+  Paper,
+  Avatar,
+  Chip,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { LocalFireDepartment, AcUnit, Warning, CheckCircle, Cancel } from '@mui/icons-material';
-import { mainInfo } from './sales-data-view';
+import {
+  LocalFireDepartment,
+  AcUnit,
+  Warning,
+  CheckCircle,
+  Cancel,
+  DateRange,
+} from '@mui/icons-material';
+import AnalysisPeriod, { getDataPeriod } from './analysis-period';
+
+// Type definitions
+interface BranchMonthlySales {
+  name: string;
+  monthlySalesCYear: number[];
+  monthlySalesPYear: number[];
+}
+
+interface CompanyMonthlySales {
+  name: string;
+  branches: BranchMonthlySales[];
+}
+
+interface mainInfo {
+  monthlySales: {
+    companies: CompanyMonthlySales[];
+  };
+  [key: string]: any; // For other properties we don't use
+}
 
 const PerformanceCard = styled(Card)(({ theme }) => ({
   height: '100%',
@@ -38,43 +67,112 @@ interface PerformanceAnalysisKPIsProps {
   year: number;
 }
 
+interface BranchPerformance {
+  company: string;
+  branch: string;
+  currentTotal: number;
+  previousTotal: number;
+  growth: number;
+  consistencyScore: number;
+  momentum: number;
+  performanceScore: number;
+  monthsWithZeroSales: number;
+}
+
 export default function PerformanceAnalysisKPIs({ data, year }: PerformanceAnalysisKPIsProps) {
   const theme = useTheme();
+  const {
+    firstMonth: firstMonthIndex,
+    lastMonth: lastMonthIndex,
+    monthsCount,
+  } = getDataPeriod(data);
 
-  // Calculate performance metrics for each branch
-  const calculateBranchPerformance = () => {
-    const performances: any[] = [];
+  const monthNames = [
+    'يناير',
+    'فبراير',
+    'مارس',
+    'أبريل',
+    'مايو',
+    'يونيو',
+    'يوليو',
+    'أغسطس',
+    'سبتمبر',
+    'أكتوبر',
+    'نوفمبر',
+    'ديسمبر',
+  ];
 
-    data.monthlySales.companies.forEach((company) => {
-      company.branches.forEach((branch) => {
-        const currentTotal = branch.monthlySalesCYear.reduce((a, b) => a + b, 0);
-        const previousTotal = branch.monthlySalesPYear.reduce((a, b) => a + b, 0);
+  // Calculate performance metrics for each branch based on same period
+  const calculateBranchPerformance = (): BranchPerformance[] => {
+    const performances: BranchPerformance[] = [];
+
+    data.monthlySales.companies.forEach((company: CompanyMonthlySales) => {
+      company.branches.forEach((branch: BranchMonthlySales) => {
+        // Calculate totals for the same period only
+        let currentTotal = 0;
+        let previousTotal = 0;
+
+        for (let i = firstMonthIndex; i <= lastMonthIndex; i++) {
+          currentTotal += branch.monthlySalesCYear[i] || 0;
+          previousTotal += branch.monthlySalesPYear[i] || 0;
+        }
+
         const growth =
           previousTotal > 0 ? ((currentTotal - previousTotal) / previousTotal) * 100 : 0;
 
-        // Calculate consistency score (lower variance = higher score)
-        const monthlyGrowthRates = branch.monthlySalesCYear
-          .map((curr, idx) => {
-            const prev = branch.monthlySalesPYear[idx];
-            return prev > 0 ? ((curr - prev) / prev) * 100 : 0;
-          })
-          .filter((rate) => !isNaN(rate));
+        // Calculate consistency score (lower variance = higher score) for the same period
+        const monthlyGrowthRates = [];
+        for (let i = firstMonthIndex; i <= lastMonthIndex; i++) {
+          const curr = branch.monthlySalesCYear[i] || 0;
+          const prev = branch.monthlySalesPYear[i] || 0;
+          if (prev > 0) {
+            monthlyGrowthRates.push(((curr - prev) / prev) * 100);
+          }
+        }
 
-        const avgGrowth = monthlyGrowthRates.reduce((a, b) => a + b, 0) / monthlyGrowthRates.length;
+        const avgGrowth =
+          monthlyGrowthRates.length > 0
+            ? monthlyGrowthRates.reduce((a: number, b: number) => a + b, 0) /
+              monthlyGrowthRates.length
+            : 0;
         const variance =
-          monthlyGrowthRates.reduce((sum, rate) => sum + Math.pow(rate - avgGrowth, 2), 0) /
-          monthlyGrowthRates.length;
+          monthlyGrowthRates.length > 0
+            ? monthlyGrowthRates.reduce(
+                (sum: number, rate: number) => sum + Math.pow(rate - avgGrowth, 2),
+                0
+              ) / monthlyGrowthRates.length
+            : 0;
         const consistencyScore = Math.max(0, 100 - Math.sqrt(variance));
 
-        // Calculate momentum (recent 3 months vs previous 3 months)
-        const recent3Months = branch.monthlySalesCYear.slice(-3).reduce((a, b) => a + b, 0);
-        const previous3Months = branch.monthlySalesCYear.slice(-6, -3).reduce((a, b) => a + b, 0);
+        // Calculate momentum (recent 3 months vs previous 3 months) within the period
+        const recentMonths = Math.min(3, lastMonthIndex + 1);
+        const recent3Months = branch.monthlySalesCYear
+          .slice(Math.max(0, lastMonthIndex - recentMonths + 1), lastMonthIndex + 1)
+          .reduce((a: number, b: number) => a + b, 0);
+
+        const previousMonthsStart = Math.max(0, lastMonthIndex - recentMonths * 2 + 1);
+        const previousMonthsEnd = Math.max(0, lastMonthIndex - recentMonths);
+        const previous3Months =
+          previousMonthsEnd >= previousMonthsStart
+            ? branch.monthlySalesCYear
+                .slice(previousMonthsStart, previousMonthsEnd + 1)
+                .reduce((a: number, b: number) => a + b, 0)
+            : 0;
+
         const momentum =
           previous3Months > 0 ? ((recent3Months - previous3Months) / previous3Months) * 100 : 0;
 
         // Calculate overall performance score
         const performanceScore =
           (growth > 0 ? 40 : 20) + consistencyScore * 0.3 + (momentum > 0 ? 30 : 10);
+
+        // Count months with zero sales in the period
+        let monthsWithZeroSales = 0;
+        for (let i = firstMonthIndex; i <= lastMonthIndex; i++) {
+          if ((branch.monthlySalesCYear[i] || 0) === 0) {
+            monthsWithZeroSales++;
+          }
+        }
 
         performances.push({
           company: company.name,
@@ -85,22 +183,28 @@ export default function PerformanceAnalysisKPIs({ data, year }: PerformanceAnaly
           consistencyScore,
           momentum,
           performanceScore,
-          monthsWithZeroSales: branch.monthlySalesCYear.filter((s) => s === 0).length,
+          monthsWithZeroSales,
         });
       });
     });
 
-    return performances.sort((a, b) => b.performanceScore - a.performanceScore);
+    return performances.sort(
+      (a: BranchPerformance, b: BranchPerformance) => b.performanceScore - a.performanceScore
+    );
   };
 
   const branchPerformances = calculateBranchPerformance();
 
   // Categorize branches by performance
-  const excellentPerformers = branchPerformances.filter((p) => p.performanceScore >= 70);
-  const goodPerformers = branchPerformances.filter(
-    (p) => p.performanceScore >= 50 && p.performanceScore < 70
+  const excellentPerformers = branchPerformances.filter(
+    (p: BranchPerformance) => p.performanceScore >= 70
   );
-  const needsImprovement = branchPerformances.filter((p) => p.performanceScore < 50);
+  const goodPerformers = branchPerformances.filter(
+    (p: BranchPerformance) => p.performanceScore >= 50 && p.performanceScore < 70
+  );
+  const needsImprovement = branchPerformances.filter(
+    (p: BranchPerformance) => p.performanceScore < 50
+  );
 
   const getStatusColor = (score: number) => {
     if (score >= 70) return theme.palette.success.main;
@@ -116,9 +220,35 @@ export default function PerformanceAnalysisKPIs({ data, year }: PerformanceAnaly
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold' }}>
-        تحليل الأداء التفصيلي
-      </Typography>
+      <Box
+        sx={{
+          mb: 3,
+          p: 2,
+          backgroundColor: '#f8f9fa',
+          borderRadius: '8px',
+          borderLeft: '5px solid',
+          borderLeftColor: '#2E7D32',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+        }}
+      >
+        <Typography
+          variant="h5"
+          component="h2"
+          sx={{
+            textAlign: 'left',
+            fontWeight: 'bold',
+            color: 'text.primary',
+          }}
+        >
+          تحليل الأداء التفصيلي
+        </Typography>
+      </Box>
+      <AnalysisPeriod
+        firstMonthIndex={firstMonthIndex}
+        lastMonthIndex={lastMonthIndex}
+        monthsCount={monthsCount}
+        year={year}
+      />
 
       {/* Performance Overview Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
@@ -205,12 +335,12 @@ export default function PerformanceAnalysisKPIs({ data, year }: PerformanceAnaly
       <Card>
         <CardContent>
           <Typography variant="h6" gutterBottom sx={{ mb: 3 }}>
-            تفاصيل أداء الفروع
+            تفاصيل أداء الفروع (لفترة {monthsCount} أشهر)
           </Typography>
 
           <Box sx={{ overflowX: 'auto' }}>
             <Stack spacing={2}>
-              {branchPerformances.slice(0, 10).map((branch, index) => (
+              {branchPerformances.slice(0, 10).map((branch: BranchPerformance, index: number) => (
                 <Box key={index}>
                   <Box
                     sx={{
@@ -331,8 +461,10 @@ export default function PerformanceAnalysisKPIs({ data, year }: PerformanceAnaly
                   </Typography>
                   <Typography variant="body1">
                     {
-                      branchPerformances.sort((a, b) => b.consistencyScore - a.consistencyScore)[0]
-                        ?.branch
+                      branchPerformances.sort(
+                        (a: BranchPerformance, b: BranchPerformance) =>
+                          b.consistencyScore - a.consistencyScore
+                      )[0]?.branch
                     }
                   </Typography>
                 </Box>
@@ -341,7 +473,11 @@ export default function PerformanceAnalysisKPIs({ data, year }: PerformanceAnaly
                     أقوى زخم
                   </Typography>
                   <Typography variant="body1">
-                    {branchPerformances.sort((a, b) => b.momentum - a.momentum)[0]?.branch}
+                    {
+                      branchPerformances.sort(
+                        (a: BranchPerformance, b: BranchPerformance) => b.momentum - a.momentum
+                      )[0]?.branch
+                    }
                   </Typography>
                 </Box>
               </Stack>
@@ -353,7 +489,7 @@ export default function PerformanceAnalysisKPIs({ data, year }: PerformanceAnaly
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                تحديات الأداء
+                تحديات الأداء (خلال {monthsCount} أشهر)
               </Typography>
               <Stack spacing={2} divider={<Divider />}>
                 <Box>
@@ -361,7 +497,11 @@ export default function PerformanceAnalysisKPIs({ data, year }: PerformanceAnaly
                     فروع بدون مبيعات
                   </Typography>
                   <Typography variant="body1">
-                    {branchPerformances.filter((b) => b.monthsWithZeroSales > 0).length} فرع
+                    {
+                      branchPerformances.filter((b: BranchPerformance) => b.monthsWithZeroSales > 0)
+                        .length
+                    }{' '}
+                    فرع
                   </Typography>
                 </Box>
                 <Box>
@@ -369,7 +509,7 @@ export default function PerformanceAnalysisKPIs({ data, year }: PerformanceAnaly
                     فروع بنمو سلبي
                   </Typography>
                   <Typography variant="body1">
-                    {branchPerformances.filter((b) => b.growth < 0).length} فرع
+                    {branchPerformances.filter((b: BranchPerformance) => b.growth < 0).length} فرع
                   </Typography>
                 </Box>
                 <Box>
@@ -378,8 +518,10 @@ export default function PerformanceAnalysisKPIs({ data, year }: PerformanceAnaly
                   </Typography>
                   <Typography variant="body1">
                     {(
-                      branchPerformances.reduce((sum, b) => sum + b.growth, 0) /
-                      branchPerformances.length
+                      branchPerformances.reduce(
+                        (sum: number, b: BranchPerformance) => sum + b.growth,
+                        0
+                      ) / branchPerformances.length
                     ).toFixed(1)}
                     %
                   </Typography>

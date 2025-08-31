@@ -146,10 +146,10 @@ export default function MillsCompanyReportTable({ data }: MillsCompanyReportTabl
               >
                 الفرع
               </HeaderTableCell>
-              <HeaderTableCell colSpan={5}>الأرصدة بداية الشهر</HeaderTableCell>
+              <HeaderTableCell colSpan={5}>الأرصدة بداية الفترة</HeaderTableCell>
               <BandedHeaderTableCell colSpan={4}>مبيعات الدقيق</BandedHeaderTableCell>
-              <HeaderTableCell colSpan={3}>القمح المستلم والإنتاج خلال الشهر</HeaderTableCell>
-              <BandedHeaderTableCell colSpan={5}>الأرصدة نهاية الشهر</BandedHeaderTableCell>
+              <HeaderTableCell colSpan={3}>القمح المستلم والإنتاج خلال الفترة</HeaderTableCell>
+              <BandedHeaderTableCell colSpan={5}>الأرصدة نهاية الفترة</BandedHeaderTableCell>
             </TableRow>
             {/* ROW 2 */}
             <TableRow>

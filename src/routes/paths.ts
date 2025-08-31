@@ -27,6 +27,9 @@ export const paths = {
       payments: `${ROOTS.Home}/mahsoli/payments`,
       locations: `${ROOTS.Home}/mahsoli/locations`,
     },
+    mcSales: {
+      root: `${ROOTS.Home}/mc-sales`,
+    },
     m: {
       root: `${ROOTS.Home}/m`,
       achievements: `${ROOTS.Home}/m/achievements`,
@@ -47,6 +50,7 @@ export const paths = {
     wheatSales: {
       root: `${ROOTS.Home}/wheat-sales`,
       monthly: `${ROOTS.Home}/wheat-sales/`,
+      devMonthly: `${ROOTS.Home}/wheat-sales/dev/`,
     },
     barleyStocks: {
       root: `${ROOTS.Home}/barley-stocks`,

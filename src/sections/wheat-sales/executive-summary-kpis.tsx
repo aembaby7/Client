@@ -10,6 +10,7 @@ import {
   Stack,
   Paper,
   Avatar,
+  alpha,
 } from '@mui/material';
 import { styled, useTheme } from '@mui/material/styles';
 import {
@@ -20,7 +21,26 @@ import {
   PieChart,
   Speed,
 } from '@mui/icons-material';
-import { mainInfo } from './sales-data-view';
+import AnalysisPeriod, { getDataPeriod } from './analysis-period';
+
+// Type definitions
+interface BranchMonthlySales {
+  name: string;
+  monthlySalesCYear: number[];
+  monthlySalesPYear: number[];
+}
+
+interface CompanyMonthlySales {
+  name: string;
+  branches: BranchMonthlySales[];
+}
+
+interface mainInfo {
+  monthlySales: {
+    companies: CompanyMonthlySales[];
+  };
+  [key: string]: any; // For other properties we don't use
+}
 
 const StyledCard = styled(Card)(({ theme }) => ({
   height: '100%',
@@ -54,7 +74,11 @@ const PercentageChange = ({
   return (
     <Chip
       icon={<Icon />}
-      label={`${Math.abs(value).toFixed(1)}%`}
+      label={`${
+        Math.abs(value) >= 10 || Number.isInteger(value)
+          ? Math.abs(value).toFixed(0)
+          : Math.abs(value).toFixed(1)
+      }%`}
       size="small"
       sx={{
         backgroundColor: isPositive ? 'success.light' : 'error.light',
@@ -77,15 +101,25 @@ interface ExecutiveSummaryKPIsProps {
 export default function ExecutiveSummaryKPIs({ data, year }: ExecutiveSummaryKPIsProps) {
   const theme = useTheme();
 
-  // Calculate total sales and growth
+  // Use the shared helper function
+  const {
+    firstMonth: firstMonthIndex,
+    lastMonth: lastMonthIndex,
+    monthsCount,
+  } = getDataPeriod(data);
+
+  // Calculate total sales and growth for the same period
   const calculateTotalSales = () => {
     let totalCurrentYear = 0;
     let totalPreviousYear = 0;
 
-    data.monthlySales.companies.forEach((company) => {
-      company.branches.forEach((branch) => {
-        totalCurrentYear += branch.monthlySalesCYear.reduce((a, b) => a + b, 0);
-        totalPreviousYear += branch.monthlySalesPYear.reduce((a, b) => a + b, 0);
+    data.monthlySales.companies.forEach((company: CompanyMonthlySales) => {
+      company.branches.forEach((branch: BranchMonthlySales) => {
+        // Only sum up to the data period (inclusive)
+        for (let i = firstMonthIndex; i <= lastMonthIndex; i++) {
+          totalCurrentYear += branch.monthlySalesCYear[i] || 0;
+          totalPreviousYear += branch.monthlySalesPYear[i] || 0;
+        }
       });
     });
 
@@ -97,13 +131,16 @@ export default function ExecutiveSummaryKPIs({ data, year }: ExecutiveSummaryKPI
     return { totalCurrentYear, totalPreviousYear, growth };
   };
 
-  // Calculate market leader
+  // Calculate market leader based on same period
   const calculateMarketLeader = () => {
-    const companyTotals = data.monthlySales.companies.map((company) => {
-      const total = company.branches.reduce(
-        (sum, branch) => sum + branch.monthlySalesCYear.reduce((a, b) => a + b, 0),
-        0
-      );
+    const companyTotals = data.monthlySales.companies.map((company: CompanyMonthlySales) => {
+      const total = company.branches.reduce((sum: number, branch: BranchMonthlySales) => {
+        let branchTotal = 0;
+        for (let i = 0; i <= lastMonthIndex; i++) {
+          branchTotal += branch.monthlySalesCYear[i] || 0;
+        }
+        return sum + branchTotal;
+      }, 0);
       return { name: company.name, total };
     });
 
@@ -111,20 +148,30 @@ export default function ExecutiveSummaryKPIs({ data, year }: ExecutiveSummaryKPI
       prev.total > current.total ? prev : current
     );
 
-    const totalMarket = companyTotals.reduce((sum, company) => sum + company.total, 0);
+    const totalMarket = companyTotals.reduce(
+      (sum: number, company: { name: string; total: number }) => sum + company.total,
+      0
+    );
     const marketShare = totalMarket > 0 ? (leader.total / totalMarket) * 100 : 0;
 
     return { ...leader, marketShare };
   };
 
-  // Calculate best performing branch
+  // Calculate best performing branch based on same period
   const calculateBestBranch = () => {
     let bestBranch = { name: '', growth: -Infinity, company: '' };
 
-    data.monthlySales.companies.forEach((company) => {
-      company.branches.forEach((branch) => {
-        const currentTotal = branch.monthlySalesCYear.reduce((a, b) => a + b, 0);
-        const previousTotal = branch.monthlySalesPYear.reduce((a, b) => a + b, 0);
+    data.monthlySales.companies.forEach((company: CompanyMonthlySales) => {
+      company.branches.forEach((branch: BranchMonthlySales) => {
+        let currentTotal = 0;
+        let previousTotal = 0;
+
+        // Calculate totals for the same period
+        for (let i = 0; i <= lastMonthIndex; i++) {
+          currentTotal += branch.monthlySalesCYear[i] || 0;
+          previousTotal += branch.monthlySalesPYear[i] || 0;
+        }
+
         const growth =
           previousTotal > 0 ? ((currentTotal - previousTotal) / previousTotal) * 100 : 0;
 
@@ -137,14 +184,10 @@ export default function ExecutiveSummaryKPIs({ data, year }: ExecutiveSummaryKPI
     return bestBranch;
   };
 
-  // Calculate average monthly sales
+  // Calculate average monthly sales for the period with data
   const calculateMonthlyAverage = () => {
     const { totalCurrentYear } = calculateTotalSales();
-    const monthsWithSales = data.monthlySales.companies[0].branches[0].monthlySalesCYear.filter(
-      (sales) => sales > 0
-    ).length;
-
-    return monthsWithSales > 0 ? totalCurrentYear / monthsWithSales : 0;
+    return monthsCount > 0 ? totalCurrentYear / monthsCount : 0;
   };
 
   const { totalCurrentYear, totalPreviousYear, growth } = calculateTotalSales();
@@ -154,9 +197,35 @@ export default function ExecutiveSummaryKPIs({ data, year }: ExecutiveSummaryKPI
 
   return (
     <Box sx={{ width: '100%', mb: 4 }}>
-      <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold' }}>
-        ملخص تنفيذي - نظرة عامة على الأداء
-      </Typography>
+      <Box
+        sx={{
+          mb: 3,
+          p: 2,
+          backgroundColor: '#f8f9fa',
+          borderRadius: '8px',
+          borderLeft: '5px solid',
+          borderLeftColor: '#2E7D32',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+        }}
+      >
+        <Typography
+          variant="h5"
+          component="h2"
+          sx={{
+            textAlign: 'left',
+            fontWeight: 'bold',
+            color: 'text.primary',
+          }}
+        >
+          ملخص تنفيذي - نظرة عامة على الأداء
+        </Typography>
+      </Box>
+      <AnalysisPeriod
+        firstMonthIndex={firstMonthIndex}
+        lastMonthIndex={lastMonthIndex}
+        monthsCount={monthsCount}
+        year={year}
+      />
 
       <Grid container spacing={3}>
         {/* Total Sales KPI */}
@@ -180,10 +249,10 @@ export default function ExecutiveSummaryKPIs({ data, year }: ExecutiveSummaryKPI
                 إجمالي المبيعات {year}
               </Typography>
               <KPIValue color="primary">
-                {new Intl.NumberFormat('ar-SA').format(Math.round(totalCurrentYear))}
+                {Math.round(totalCurrentYear).toLocaleString('en-US')}
               </KPIValue>
               <Typography variant="body2" color="text.secondary">
-                مقارنة بـ {new Intl.NumberFormat('ar-SA').format(Math.round(totalPreviousYear))} في{' '}
+                مقارنة بـ {Math.round(totalPreviousYear).toLocaleString('en-US')} في نفس الفترة{' '}
                 {year - 1}
               </Typography>
             </CardContent>
@@ -274,11 +343,9 @@ export default function ExecutiveSummaryKPIs({ data, year }: ExecutiveSummaryKPI
               <Typography color="text.secondary" gutterBottom>
                 متوسط المبيعات الشهرية
               </Typography>
-              <KPIValue color="info">
-                {new Intl.NumberFormat('ar-SA').format(Math.round(monthlyAverage))}
-              </KPIValue>
+              <KPIValue color="info">{Math.round(monthlyAverage).toLocaleString('en-US')}</KPIValue>
               <Typography variant="body2" color="text.secondary">
-                طن شهرياً
+                طن شهرياً (لـ {lastMonthIndex + 1} أشهر)
               </Typography>
             </CardContent>
           </StyledCard>
@@ -290,7 +357,7 @@ export default function ExecutiveSummaryKPIs({ data, year }: ExecutiveSummaryKPI
         <Grid container spacing={3} alignItems="center">
           <Grid item xs={12} md={4}>
             <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-              معدل النمو السنوي
+              معدل النمو للفترة
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <LinearProgress
@@ -325,7 +392,7 @@ export default function ExecutiveSummaryKPIs({ data, year }: ExecutiveSummaryKPI
             </Typography>
             <Typography variant="h6">
               {data.monthlySales.companies.reduce(
-                (sum, company) => sum + company.branches.length,
+                (sum: number, company: CompanyMonthlySales) => sum + company.branches.length,
                 0
               )}{' '}
               فرع

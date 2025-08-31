@@ -70,6 +70,12 @@ import MarketShareKPIs from '../market-share-kpis';
 import TrendAnalysisKPIs from '../trend-analysis-kpis';
 import ForecastingKPIs from '../forecasting-kpis';
 
+import SalesDataComparisonBranch from '../sales-data-comparison-branch';
+import SalesDataComparisonCompany from '../sales-data-comparison-company';
+import SalesDataComparisonMonth from '../sales-data-comparison-month';
+import SalesDataMonthlyTrend from '../sales-data-monthly-trend';
+import { COMPANY_COLORS, COMPANY_ORDER, getCompanyColor } from 'src/config/company-config';
+
 // Type definitions
 interface BranchMonthlySales {
   name: string;
@@ -222,8 +228,8 @@ yesterday.setDate(today.getDate() - 1);
 
 const defaultFilters: IDashMonthlyReportsFilters = {
   year: 2025,
-  fromMonth: 1,
-  toMonth: 7,
+  fromMonth: 0,
+  toMonth: 0,
   companyId: 0,
   branchId: 0,
 };
@@ -273,7 +279,7 @@ const TIME_LABELS = {
 
 const SPACING = 3;
 
-export default function SalesDataView() {
+export default function DevSalesDataView() {
   const now = new Date();
   const [warningLimit, setWarningLimit] = useState(50);
   const [fairLimit, setFairLimit] = useState(9000);
@@ -291,7 +297,7 @@ export default function SalesDataView() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState('');
   const [mainInfo, setmainInfo] = useState<mainInfo>();
-  const [currentTab, setCurrentTab] = useState('mReports');
+  const [currentTab, setCurrentTab] = useState('executiveSummary');
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
     setCurrentTab(newValue);
@@ -442,6 +448,25 @@ export default function SalesDataView() {
     return `%${percentage} ${description}`;
   }
 
+  // Helper function to use company colors with actual data
+  const getChartDataWithColors = useCallback(() => {
+    if (!mainInfo || !mainInfo.monthlySales) return [];
+
+    return COMPANY_ORDER.map((companyName) => {
+      const companyData = mainInfo.monthlySales.companies.find((c) => c.name === companyName);
+      return {
+        name: companyName,
+        value: companyData
+          ? companyData.branches.reduce(
+              (sum, branch) => sum + branch.monthlySalesCYear.reduce((a, b) => a + b, 0),
+              0
+            )
+          : 0,
+        color: COMPANY_COLORS[companyName],
+      };
+    });
+  }, [mainInfo]);
+
   const renderLoading = (
     <>
       <Box height={100}></Box>
@@ -479,12 +504,17 @@ export default function SalesDataView() {
               variant="scrollable"
               scrollButtons="auto"
             >
-              {/* <Tab label="الملخص التنفيذي" value="executiveSummary" />
-              <Tab label="تحليل الأداء" value="performanceAnalysis" />
+              <Tab label="بيان تفصيلي " value="mReports" />
+              <Tab label="الملخص التنفيذي" value="executiveSummary" />
+              {/* <Tab label="تحليل الأداء" value="performanceAnalysis" /> */}
               <Tab label="الحصص السوقية" value="marketShare" />
               <Tab label="تحليل الاتجاهات" value="trendAnalysis" />
-              <Tab label="التوقعات" value="forecasting" /> */}
-              <Tab label="تقرير شامل" value="mReports" />
+              <Tab label="التوقعات" value="forecasting" />
+
+              <Tab label="مبيعات الفروع" value="compareBranch" />
+              <Tab label="مبيعات الشركات" value="compareCompany" />
+              <Tab label="مقارنة شهرية" value="CompareMonthl" />
+              <Tab label="اتجاه المبيعات الشهرية" value="monthlyTrend" />
             </Tabs>
           </Box>
 
@@ -540,6 +570,41 @@ export default function SalesDataView() {
                 <MillingCompaniesSalesComparisonTable
                   data={mainInfo!.monthlySales}
                   year={displayYear}
+                />
+              </Grid>
+            </Grid>
+          )}
+
+          {currentTab === 'compareBranch' && (
+            <Grid container spacing={SPACING}>
+              <Grid xs={12}>
+                <SalesDataComparisonBranch data={mainInfo} year={displayYear} />
+              </Grid>
+            </Grid>
+          )}
+
+          {currentTab === 'compareCompany' && (
+            <Grid container spacing={SPACING}>
+              <Grid xs={12}>
+                <SalesDataComparisonCompany data={mainInfo} year={displayYear} />
+              </Grid>
+            </Grid>
+          )}
+
+          {currentTab === 'CompareMonthl' && mainInfo && (
+            <Grid container spacing={SPACING}>
+              <Grid xs={12}>
+                <SalesDataComparisonMonth data={mainInfo} year={displayYear} />
+              </Grid>
+            </Grid>
+          )}
+          {currentTab === 'monthlyTrend' && mainInfo && (
+            <Grid container spacing={SPACING}>
+              <Grid xs={12}>
+                <SalesDataMonthlyTrend
+                  data={mainInfo}
+                  currentYearLabel={displayYear.toString()}
+                  previousYearLabel={(displayYear - 1).toString()}
                 />
               </Grid>
             </Grid>

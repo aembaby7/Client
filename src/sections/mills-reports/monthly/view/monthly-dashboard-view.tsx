@@ -76,7 +76,7 @@ yesterday.setDate(today.getDate() - 1);
 const defaultFilters: IDashMonthlyReportsFilters = {
   year: 2025,
   fromMonth: 1,
-  toMonth: 6,
+  toMonth: 7,
   companyId: 0,
   branchId: 0,
 };
@@ -541,9 +541,9 @@ export default function MillsMonthlyDashboardView() {
               <Tab label="تقارير سنوية" value="yReports" />
               <Tab label="ربع سنوية" value="qReports" />
               <Tab label="شهرية" value="mReports" />
-              <Tab label="الإنتاج" value="production" />
+              {/* <Tab label="الإنتاج" value="production" /> */}
               <Tab label="المبيعات" value="sales" />
-              <Tab label="المخزون" value="inventory" />
+              {/* <Tab label="المخزون" value="inventory" /> */}
             </Tabs>
           </Box>
 

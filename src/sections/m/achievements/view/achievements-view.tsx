@@ -780,7 +780,7 @@ export default function MDashboardView() {
   return (
     <>
       <div ref={printingAreaRef}>
-        <Container maxWidth={settings.themeStretch ? false : 'xl'} id="fullPage">
+        <Container maxWidth={false} id="fullPage">
           <Box
             sx={{
               width: 1,
