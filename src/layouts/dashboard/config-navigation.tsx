@@ -134,11 +134,7 @@ export function useNavData() {
             path: paths.home.flourSales.allyears,
             icon: ICONS.analytics, // Analytics/comparison
           },
-          {
-            title: t('مبيعات العملاء'),
-            path: paths.home.mcSales.root,
-            icon: ICONS.analytics, // Analytics/comparison
-          },
+
           {
             title: t('الأعمال المنجزة'),
             path: paths.home.m.achievements,
@@ -197,9 +193,14 @@ export function useNavData() {
         subheader: t('تحت الإختبار'),
         items: [
           {
-            title: t('المبيعات الشهرية'),
+            title: t('مبيعات القمح'),
             path: paths.home.wheatSales.devMonthly,
             icon: ICONS.label, // Test/development label
+          },
+          {
+            title: t('مبيعات الدقيق'),
+            path: paths.home.mcSales.root,
+            icon: ICONS.analytics, // Analytics/comparison
           },
         ],
       },
