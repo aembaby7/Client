@@ -4,10 +4,10 @@ import { Box } from '@mui/material';
 import ScaleTwoToneIcon from '@mui/icons-material/ScaleTwoTone';
 import LocalShippingTwoToneIcon from '@mui/icons-material/LocalShippingTwoTone';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import { SalesSummary } from 'src/types/mcSales';
 import { MCSalesSummaryCard } from './MCSalesSummaryCard';
-import { SARIcon } from '../common/SARIcon';
-import { formatSAR } from '../../utils/formatters';
+import { fTon, fCurrency, fNumber } from 'src/utils/format-number';
 
 interface MCSalesSummaryCardsProps {
   summary: SalesSummary | null;
@@ -21,8 +21,7 @@ export const MCSalesSummaryCards: React.FC<MCSalesSummaryCardsProps> = ({ summar
       <Grid xs={12} md={4}>
         <MCSalesSummaryCard
           title="إجمالي المبيعات"
-          value={summary.totalWeight || 0}
-          unit="طن"
+          value={fTon(summary.totalWeight || 0)}
           icon={<ScaleTwoToneIcon sx={{ color: '#6B7280', fontSize: 24 }} />}
           bottomIcon={
             <Box sx={{ width: 16, height: 16 }}>
@@ -36,13 +35,8 @@ export const MCSalesSummaryCards: React.FC<MCSalesSummaryCardsProps> = ({ summar
       <Grid xs={12} md={4}>
         <MCSalesSummaryCard
           title="إجمالي السعر"
-          value={
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <span>{formatSAR(summary.totalPrice)}</span>
-              <SARIcon size={28} color="#10B981" />
-            </Box>
-          }
-          icon={<LocalShippingTwoToneIcon sx={{ color: '#10B981', fontSize: 24 }} />}
+          value={fCurrency(summary.totalPrice)}
+          icon={<AttachMoneyIcon sx={{ color: '#10B981', fontSize: 24 }} />}
           iconBgColor="#F0FDF4"
           bottomText="وفق شركات المطاحن"
           topBorder
@@ -53,7 +47,7 @@ export const MCSalesSummaryCards: React.FC<MCSalesSummaryCardsProps> = ({ summar
       <Grid xs={12} md={4}>
         <MCSalesSummaryCard
           title="إجمالي السجلات"
-          value={summary.totalRecords || 0}
+          value={fNumber(summary.totalRecords || 0)}
           icon={<ReceiptLongIcon sx={{ color: '#6B7280', fontSize: 24 }} />}
           bottomIcon={
             <Box

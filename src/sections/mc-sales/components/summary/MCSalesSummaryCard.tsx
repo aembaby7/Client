@@ -3,7 +3,7 @@ import { Card, CardContent, Stack, Box, Typography } from '@mui/material';
 
 interface MCSalesSummaryCardProps {
   title: string;
-  value: string | number;
+  value: string | number | React.ReactNode;
   unit?: string;
   icon: React.ReactNode;
   iconBgColor?: string;
@@ -73,27 +73,33 @@ export const MCSalesSummaryCard: React.FC<MCSalesSummaryCardProps> = ({
                 {title}
               </Typography>
               <Stack direction="row" alignItems="baseline" spacing={1}>
-                <Typography
-                  variant="h3"
-                  sx={{
-                    fontWeight: 700,
-                    color: '#111827',
-                    fontSize: '2.5rem',
-                    lineHeight: 1,
-                  }}
-                >
-                  {typeof value === 'number' ? new Intl.NumberFormat('en-US').format(value) : value}
-                </Typography>
-                {unit && (
-                  <Typography
-                    sx={{
-                      color: '#9CA3AF',
-                      fontSize: '1.125rem',
-                      fontWeight: 500,
-                    }}
-                  >
-                    {unit}
-                  </Typography>
+                {typeof value === 'string' || typeof value === 'number' ? (
+                  <>
+                    <Typography
+                      variant="h3"
+                      sx={{
+                        fontWeight: 700,
+                        color: '#111827',
+                        fontSize: '2.5rem',
+                        lineHeight: 1,
+                      }}
+                    >
+                      {value}
+                    </Typography>
+                    {unit && (
+                      <Typography
+                        sx={{
+                          color: '#9CA3AF',
+                          fontSize: '1.125rem',
+                          fontWeight: 500,
+                        }}
+                      >
+                        {unit}
+                      </Typography>
+                    )}
+                  </>
+                ) : (
+                  <Box>{value}</Box>
                 )}
               </Stack>
             </Box>
